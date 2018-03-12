@@ -9,10 +9,13 @@ public class Beat : ScriptableObject
     public Sprite beatImage;
     public Material materialTemplate;
     [System.NonSerialized] public SpriteRenderer renderer;
+    [System.NonSerialized] public GameObject gameObject;
     public Vector2 position;
     public Vector2 scale;
     [Range(0.0f, 300.0f)] public float startTime;
     [Range(0.0f, 300.0f)] public float leadUpTime;
     [Range(0.0f, 50.0f)] public float shakeAmplitude;
     [Range(0.0f, 50.0f)] public float shakeRate;
+    [Range(0.0f, 1.0f)] public float shakeDuration;
+    [System.NonSerialized] public bool hasTriggered;
 }
