@@ -92,9 +92,9 @@ public class BeatPlayer : MonoBehaviour
 
     IEnumerator FadeFlare()
     {
-        float startingAlpha = m_screenFlare.color.a;
+        float startingAlpha = 0.75f;
 
-        for (float i = startingAlpha; i >= 0.0f; i -= Time.deltaTime)
+        for (float i = startingAlpha; i >= 0.0f; i -= Time.deltaTime * 2.0f)
         {
             if (m_screenFlare.color.a > i)
             {
