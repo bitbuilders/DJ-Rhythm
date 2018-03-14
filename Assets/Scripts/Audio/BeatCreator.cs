@@ -1,40 +1,36 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
+using UnityEditor;
 using UnityEngine;
 
 public class BeatCreator : MonoBehaviour
 {
-    [SerializeField] List<Beat> m_beats;
-    [SerializeField] GameObject m_cube = null;
-    [SerializeField] AudioSource m_music = null;
-    [SerializeField] List<Material> m_materials = null;
-    [SerializeField] List<Sprite> m_sprites = null;
+    [SerializeField] BeatTrack m_beatTrack = null;
 
-    Material m_currentMaterial;
-    Sprite m_currentSprite;
+    BeatTrack testTrack;
+
+    private void Awake()
+    {
+        testTrack = ScriptableObject.CreateInstance<BeatTrack>();
+        testTrack.beats = new List<Beat>();
+    }
 
     private void Start()
     {
-        m_beats = new List<Beat>();
-        m_currentMaterial = m_materials[0];
-        m_currentSprite = m_sprites[0];
-    }
+        string path = "Assets\\Resources\\CustomLevels\\Track03.asset";
+        string path2 = "Assets\\Resources\\CustomLevels\\Beats\\Beat01.asset";
+        Object file = Resources.Load(path);
 
-    private void Update()
-    {
-        if (Input.GetButtonDown("Fire1"))
-        {
-            Vector2 mousePos = Input.mousePosition;
-            mousePos = Camera.main.ScreenToWorldPoint(mousePos);
-            Beat beat = new Beat();
-            beat.position = mousePos;
-            beat.scale = new Vector2(0.2f, 0.2f);
-            beat.startTime = m_music.time;
-            beat.leadUpTime = m_music.time - 1.0f;
-            beat.materialTemplate = m_currentMaterial;
-            beat.beatImage = m_currentSprite;
-            m_beats.Add(beat);
-            Instantiate(m_cube, mousePos, Quaternion.identity);
-        }
+        Beat beat = ScriptableObject.CreateInstance<Beat>();
+        beat.startTime = 2.0f;
+        print(beat.startTime);
+        // Need to create beat before adding it to track
+        AssetDatabase.CreateAsset(beat, path2);
+        AssetDatabase.CreateAsset(testTrack, path);
+        testTrack.beats.Add(beat);
+
+        AssetDatabase.SaveAssets();
     }
 }

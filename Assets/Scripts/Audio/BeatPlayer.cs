@@ -1,87 +1,118 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
 public class BeatPlayer : MonoBehaviour
 {
+    public enum BeatResult
+    {
+        PERFECT = 30,
+        GREAT = 20,
+        GOOD = 10,
+        BAD = 5,
+        MISS = 0
+    }
+
     [SerializeField] AudioSource m_music = null;
     [SerializeField] CameraController m_camera = null;
-    [SerializeField] [Range(1.0f, 10.0f)] public float m_pointAmplifier = 1.0f;
-    [SerializeField] Transform m_beatContainer = null;
-    [SerializeField] List<Beat> m_beats = null;
+    [SerializeField] Player m_player = null;
+    [SerializeField] Image m_screenFlare = null;
+    [SerializeField] BeatTrack m_beatTrack = null;
+    
+    int m_beatIndex = 0;
 
     private void Start()
     {
-        foreach (Beat beat in m_beats)
-        {
-            GameObject obj = new GameObject("Sprite Clone");
-            obj.transform.parent = m_beatContainer;
-            obj.transform.position = beat.position;
-            obj.transform.localScale = beat.scale;
-            SpriteRenderer renderer = obj.AddComponent<SpriteRenderer>();
-            Sprite sprite = Instantiate(beat.beatImage);
-            renderer.sprite = sprite;
-            Material material = new Material(beat.materialTemplate);
-            renderer.material = material;
-            beat.renderer = renderer;
-
-            obj.AddComponent<BoxCollider2D>();
-            BeatHit hit = obj.AddComponent<BeatHit>();
-            hit.music = m_music;
-            hit.beat = beat;
-            hit.player = this;
-
-            beat.gameObject = obj;
-
-            //EventTrigger trigger = obj.AddComponent<EventTrigger>();
-            //EventTrigger.Entry entry = new EventTrigger.Entry();
-            //entry.eventID = EventTriggerType.PointerClick;
-            //entry.callback.AddListener((data) => { HitBeat((PointerEventData)data, beat); });
-            //trigger.triggers.Add(entry);
-        }
+        m_beatTrack.beats = m_beatTrack.beats.OrderBy(b => b.startTime).ToList();
     }
 
     private void Update()
     {
-        foreach (Beat beat in m_beats)
+        if (PastTimeWindow(m_beatTrack.beats[m_beatIndex]))
         {
-            if (beat.gameObject)
-            {
-                float time = m_music.time - (beat.startTime - beat.leadUpTime);
-                //print(time + " | " + m_music.time);
-                beat.renderer.material.color = new Color(beat.renderer.material.color.r, beat.renderer.material.color.g, beat.renderer.material.color.b, 1.0f);
-                if (time <= 1.0f)
-                {
-                    float fade = Mathf.Clamp01(time);
-                    //print(fade);
-                    beat.renderer.material.color = new Color(beat.renderer.material.color.r, beat.renderer.material.color.g, beat.renderer.material.color.b, fade);
-                    if (!beat.hasTriggered && fade >= 0.95f)
-                    {
-                        ShakeBeat(beat);
-                        beat.hasTriggered = true;
-                        StartCoroutine(FadeBeat(beat));
-                    }
-                }
-            }
+            AddPlayerPoints(BeatResult.MISS);
+        }
+        else if (Input.GetButtonDown("Jump") && !WithinSafePeriod(m_beatTrack.beats[m_beatIndex]))
+        {
+            AddPlayerPoints(HitBeat(m_beatTrack.beats[m_beatIndex]));
+        }
+
+        if (m_beatIndex >= m_beatTrack.beats.Count)
+        {
+            FinishLevel();
         }
     }
 
-    public void ShakeBeat(Beat beat)
+    BeatResult HitBeat(Beat beat)
     {
-        m_camera.ShakeCamera(beat.shakeDuration, beat.shakeAmplitude, beat.shakeRate);
+        BeatResult result;
+
+        float timeDelta = m_music.time - beat.startTime;
+
+        if (timeDelta / beat.timeWindow > 1.0f || timeDelta < 0.0f)
+        {
+            result = BeatResult.MISS;
+        }
+        else
+        {
+            if (timeDelta / beat.timeWindow < 0.25f) result = BeatResult.PERFECT;
+            else if (timeDelta / beat.timeWindow < 0.5f) result = BeatResult.GREAT;
+            else if (timeDelta / beat.timeWindow < 0.75f) result = BeatResult.GOOD;
+            else result = BeatResult.BAD;
+        }
+
+        return result;
     }
 
-    IEnumerator FadeBeat(Beat beat)
+    bool PastTimeWindow(Beat beat)
     {
-        for (float i = 1.0f; i >= 0.0f; i -= Time.deltaTime)
+        return m_music.time - beat.startTime > beat.timeWindow;
+    }
+
+    bool WithinSafePeriod(Beat beat)
+    {
+        // Checks to see if the player is able to hit the beat yet (so they don't press it early)
+        return beat.startTime - m_music.time > 0.25f;
+    }
+
+    void AddPlayerPoints(BeatResult result)
+    {
+        Beat beat = m_beatTrack.beats[m_beatIndex];
+        m_camera.ShakeCamera(beat.shakeDuration, beat.shakeAmplitude, beat.shakeRate);
+
+        float points = (int)result;
+        m_player.AddPoints(points);
+        m_beatIndex++;
+        m_screenFlare.gameObject.SetActive(true);
+        StartCoroutine(FadeFlare());
+    }
+
+    IEnumerator FadeFlare()
+    {
+        float startingAlpha = m_screenFlare.color.a;
+
+        for (float i = startingAlpha; i >= 0.0f; i -= Time.deltaTime)
         {
-            if (beat.gameObject)
-                beat.renderer.material.color = new Color(beat.renderer.material.color.r, beat.renderer.material.color.g, beat.renderer.material.color.b, i);
+            if (m_screenFlare.color.a > i)
+            {
+                Color color = m_screenFlare.color;
+                color.a = i;
+                m_screenFlare.color = color;
+            }
             yield return null;
         }
 
-        if (beat.gameObject)
-            Destroy(beat.gameObject);
+        Color c = m_screenFlare.color;
+        c.a = startingAlpha;
+        m_screenFlare.color = c;
+        m_screenFlare.gameObject.SetActive(false);
+    }
+
+    void FinishLevel()
+    {
+
     }
 }
