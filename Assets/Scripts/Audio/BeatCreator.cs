@@ -82,12 +82,22 @@ public class BeatCreator : MonoBehaviour
 
         for (int i = 0; i < m_beats.Count; ++i)
         {
-            AssetDatabase.CreateAsset(m_beats[i], paths[i]);
-            m_beatTrack.beats.Add(m_beats[i]);
+            Beat beat = AssetDatabase.LoadAssetAtPath<Beat>(paths[i]);
+            if (beat != m_beats[i])
+            {
+                AssetDatabase.CreateAsset(m_beats[i], paths[i]);
+                m_beatTrack.beats.Add(m_beats[i]);
+            }
         }
 
-        AssetDatabase.CreateAsset(m_beatTrack, m_trackPath);
+        //FileUtil.DeleteFileOrDirectory(m_trackPath);
+        //AssetDatabase.DeleteAsset(m_trackPath);
+        //AssetDatabase.Refresh();
+        //AssetDatabase.SaveAssets();
+        if (AssetDatabase.LoadAssetAtPath<BeatTrack>(m_trackPath) != m_beatTrack)
+            AssetDatabase.CreateAsset(m_beatTrack, m_trackPath);
 
+        AssetDatabase.Refresh();
         AssetDatabase.SaveAssets();
     }
 
@@ -97,6 +107,13 @@ public class BeatCreator : MonoBehaviour
             AssetDatabase.CreateFolder("Assets", "Resources");
         if (!AssetDatabase.IsValidFolder("Assets\\Resources\\CustomLevels"))
             AssetDatabase.CreateFolder("Assets\\Resources", "CustomLevels");
+        //if (AssetDatabase.IsValidFolder("Assets\\Resources\\CustomLevels\\" + m_level))
+        //{
+        //    FileUtil.DeleteFileOrDirectory("Assets\\Resources\\CustomLevels\\" + m_level);
+        //    AssetDatabase.Refresh();
+        //    AssetDatabase.SaveAssets();
+        //    print("HI");
+        //}
         if (!AssetDatabase.IsValidFolder("Assets\\Resources\\CustomLevels\\" + m_level))
             AssetDatabase.CreateFolder("Assets\\Resources\\CustomLevels", m_level);
         if (!AssetDatabase.IsValidFolder("Assets\\Resources\\CustomLevels\\" + m_level + "\\Beats"))
@@ -136,12 +153,17 @@ public class BeatCreator : MonoBehaviour
         m_screenFlare.gameObject.SetActive(false);
     }
 
-    public void Rewind(float seconds)
+    public void SkipTime(float seconds)
     {
-        float newTime = m_music.time - seconds;
+        float newTime = m_music.time + seconds;
         newTime = newTime >= 0.0f ? newTime : 0.0f;
         m_music.time = newTime;
 
+        //RemoveBeatsOverCurrent();
+    }
+
+    private void RemoveBeatsOverCurrent()
+    {
         for (int i = m_beats.Count - 1; i >= 0; i--)
         {
             if (m_beats[i].startTime > m_music.time)
@@ -149,5 +171,32 @@ public class BeatCreator : MonoBehaviour
                 m_beats.Remove(m_beats[i]);
             }
         }
+    }
+
+    public void Pause()
+    {
+        m_music.Pause();
+    }
+
+    public void Play()
+    {
+        m_music.Play();
+    }
+
+    public void Delete()
+    {
+
+    }
+
+    public void OpenSettings()
+    {
+
+    }
+
+    public void SaveTrack(Text level)
+    {
+        m_level = level.text;
+        m_trackPath = "Assets\\Resources\\CustomLevels\\" + m_level + "\\Track.asset";
+        SaveBeats();
     }
 }
