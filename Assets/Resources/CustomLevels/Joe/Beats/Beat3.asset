@@ -11,7 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ee02f22facb02f42afedc38e3ab5c5b, type: 3}
   m_Name: Beat3
   m_EditorClassIdentifier: 
-  startTime: 3.7119954
+  startTime: 10.901315
   timeWindow: 0.5
   shakeAmplitude: 6
   shakeRate: 3

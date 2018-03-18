@@ -11,8 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 621b64e8de1b2494e91920cc10f2232f, type: 3}
   m_Name: Track
   m_EditorClassIdentifier: 
-  level: Bob
+  level: Joe
   beats:
-  - {fileID: 11400000, guid: 3dff2bbbd1857b84680b1b607f25dcb3, type: 2}
-  - {fileID: 11400000, guid: a6defa64c9b4679458ad9b29594fe155, type: 2}
-  - {fileID: 11400000, guid: 320f82aa5a6178245a5272d54fdfa704, type: 2}
+  - {fileID: 11400000, guid: 6a38411714a2bcc42a34a1647896cb3c, type: 2}
+  - {fileID: 11400000, guid: b3975e4c3f8d79e4094d9c60471c133f, type: 2}

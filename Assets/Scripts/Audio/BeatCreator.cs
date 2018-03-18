@@ -4,6 +4,7 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEditor;
 using UnityEngine;
+using TMPro;
 using UnityEngine.UI;
 
 public class BeatCreator : MonoBehaviour
@@ -25,9 +26,10 @@ public class BeatCreator : MonoBehaviour
 
     private void Start()
     {
-        m_beatTrack = ScriptableObject.CreateInstance<BeatTrack>();
-        m_beatTrack.level = m_level;
-        m_beatTrack.beats = new List<Beat>();
+        StopMusic();
+        //m_beatTrack = ScriptableObject.CreateInstance<BeatTrack>();
+        //m_beatTrack.level = m_level;
+        //m_beatTrack.beats = new List<Beat>();
         
         //Object file = Resources.Load(path);
     }
@@ -107,13 +109,6 @@ public class BeatCreator : MonoBehaviour
             AssetDatabase.CreateFolder("Assets", "Resources");
         if (!AssetDatabase.IsValidFolder("Assets\\Resources\\CustomLevels"))
             AssetDatabase.CreateFolder("Assets\\Resources", "CustomLevels");
-        //if (AssetDatabase.IsValidFolder("Assets\\Resources\\CustomLevels\\" + m_level))
-        //{
-        //    FileUtil.DeleteFileOrDirectory("Assets\\Resources\\CustomLevels\\" + m_level);
-        //    AssetDatabase.Refresh();
-        //    AssetDatabase.SaveAssets();
-        //    print("HI");
-        //}
         if (!AssetDatabase.IsValidFolder("Assets\\Resources\\CustomLevels\\" + m_level))
             AssetDatabase.CreateFolder("Assets\\Resources\\CustomLevels", m_level);
         if (!AssetDatabase.IsValidFolder("Assets\\Resources\\CustomLevels\\" + m_level + "\\Beats"))
@@ -153,6 +148,41 @@ public class BeatCreator : MonoBehaviour
         m_screenFlare.gameObject.SetActive(false);
     }
 
+    void PlayMusic()
+    {
+        m_music.time = 0.0f;
+        m_music.Play();
+        m_paused = false;
+    }
+    void StopMusic()
+    {
+        m_music.Stop();
+        m_paused = true;
+    }
+
+    public void LoadTrack(BeatTrack track)
+    {
+        m_beatTrack = track;
+        m_level = m_beatTrack.level;
+
+        foreach (Beat beat in m_beatTrack.beats)
+        {
+            m_beats.Add(beat);
+        }
+
+        PlayMusic();
+    }
+
+    public void CreateNewTrack(TMP_InputField level)
+    {
+        m_beatTrack = ScriptableObject.CreateInstance<BeatTrack>();
+        m_level = level.text;
+        m_beatTrack.level = m_level;
+        m_beatTrack.beats = new List<Beat>();
+
+        PlayMusic();
+    }
+
     public void SkipTime(float seconds)
     {
         float newTime = m_music.time + seconds;
@@ -175,12 +205,12 @@ public class BeatCreator : MonoBehaviour
 
     public void Pause()
     {
-        m_music.Pause();
+        StopMusic();
     }
 
     public void Play()
     {
-        m_music.Play();
+        PlayMusic();
     }
 
     public void Delete()
@@ -193,9 +223,9 @@ public class BeatCreator : MonoBehaviour
 
     }
 
-    public void SaveTrack(Text level)
+    public void SaveTrack()
     {
-        m_level = level.text;
+        m_beatTrack.level = m_level;
         m_trackPath = "Assets\\Resources\\CustomLevels\\" + m_level + "\\Track.asset";
         SaveBeats();
     }
