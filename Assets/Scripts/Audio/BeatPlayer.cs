@@ -18,31 +18,36 @@ public class BeatPlayer : MonoBehaviour
 
     [SerializeField] AudioSource m_music = null;
     [SerializeField] CameraController m_camera = null;
+    [SerializeField] GameObject m_endScreen = null;
     [SerializeField] Player m_player = null;
     [SerializeField] Image m_screenFlare = null;
-    [SerializeField] BeatTrack m_beatTrack = null;
-    
+    [SerializeField] List<BeatTrack> m_playList = null;
+
+    int m_songIndex = 0;
     int m_beatIndex = 0;
+    bool m_paused = true;
 
     private void Start()
     {
-        m_beatTrack.beats = m_beatTrack.beats.OrderBy(b => b.startTime).ToList();
     }
 
     private void Update()
     {
-        if (PastTimeWindow(m_beatTrack.beats[m_beatIndex]))
+        if (!m_paused)
         {
-            AddPlayerPoints(BeatResult.MISS);
-        }
-        else if (Input.GetButtonDown("Jump") && !WithinSafePeriod(m_beatTrack.beats[m_beatIndex]))
-        {
-            AddPlayerPoints(HitBeat(m_beatTrack.beats[m_beatIndex]));
-        }
+            if (PastTimeWindow(m_playList[m_songIndex].beats[m_beatIndex]))
+            {
+                AddPlayerPoints(BeatResult.MISS);
+            }
+            else if (Input.GetButtonDown("Jump") && !WithinSafePeriod(m_playList[m_songIndex].beats[m_beatIndex]))
+            {
+                AddPlayerPoints(HitBeat(m_playList[m_songIndex].beats[m_beatIndex]));
+            }
 
-        if (m_beatIndex >= m_beatTrack.beats.Count)
-        {
-            FinishLevel();
+            if (m_beatIndex >= m_playList[m_songIndex].beats.Count)
+            {
+                FinishLevel();
+            }
         }
     }
 
@@ -80,7 +85,7 @@ public class BeatPlayer : MonoBehaviour
 
     void AddPlayerPoints(BeatResult result)
     {
-        Beat beat = m_beatTrack.beats[m_beatIndex];
+        Beat beat = m_playList[m_songIndex].beats[m_beatIndex];
         m_camera.ShakeCamera(beat.shakeDuration, beat.shakeAmplitude, beat.shakeRate);
 
         float points = (int)result;
@@ -113,6 +118,51 @@ public class BeatPlayer : MonoBehaviour
 
     void FinishLevel()
     {
+        m_songIndex++;
+        print(m_songIndex);
+        if (!OutOfSongs())
+        {
+            PlayNextSong();
+        }
+        else
+        {
+            PauseMusic();
+            m_endScreen.SetActive(true);
+        }
+    }
 
+    public void LoadPlaylist(List<GameObject> beatList)
+    {
+        foreach (GameObject icon in beatList)
+        {
+            m_playList.Add(icon.GetComponent<LevelIcon>().m_track);
+        }
+
+        PlayMusic();
+    }
+
+    void PlayNextSong()
+    {
+        m_music.time = 0.0f;
+        m_beatIndex = 0;
+        m_playList[m_songIndex].beats = m_playList[m_songIndex].beats.OrderBy(b => b.startTime).ToList();
+
+    }
+
+    bool OutOfSongs()
+    {
+        return m_songIndex >= m_playList.Count;
+    }
+
+    public void PlayMusic()
+    {
+        m_music.Play();
+        m_paused = false;
+    }
+
+    public void PauseMusic()
+    {
+        m_music.Pause();
+        m_paused = true;
     }
 }

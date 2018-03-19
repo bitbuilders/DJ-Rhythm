@@ -40,7 +40,7 @@ public class WorldSelector : Singleton<WorldSelector>
             string level = split[split.Length - 1];
             string fullPath = m_generalPath + level + m_generalPathSuffix;
             BeatTrack track = AssetDatabase.LoadAssetAtPath<BeatTrack>(fullPath);
-            LevelIcon icon = AddLevelIcon(track);
+            AddLevelIcon(track);
 
             rowCount++;
         }

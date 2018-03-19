@@ -11,6 +11,6 @@ public class Player : MonoBehaviour
     public void AddPoints(float points)
     {
         m_score += points;
-        print("Points added: " + points + " | New Score:" + Score);
+        //print("Points added: " + points + " | New Score:" + Score);
     }
 }
