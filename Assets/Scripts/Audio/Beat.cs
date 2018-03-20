@@ -4,8 +4,8 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [System.Serializable]
-[CreateAssetMenu(fileName = "AudioBeat", menuName = "Audio/Beat", order = 1)]
-public class Beat : ScriptableObject
+//[CreateAssetMenu(fileName = "AudioBeat", menuName = "Audio/Beat", order = 1)]
+public class Beat
 {
     [Range(0.0f, 300.0f)] public float startTime;
     [Range(0.0f, 300.0f)] public float timeWindow;

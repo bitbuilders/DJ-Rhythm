@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
-using UnityEditor;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
@@ -16,6 +15,7 @@ public class BeatCreator : MonoBehaviour
     [SerializeField] List<Beat> m_beats = null;
     [SerializeField] string m_level = null;
 
+    Game m_game;
     string m_trackPath;
     bool m_paused = false;
 
@@ -27,11 +27,8 @@ public class BeatCreator : MonoBehaviour
     private void Start()
     {
         StopMusic();
-        //m_beatTrack = ScriptableObject.CreateInstance<BeatTrack>();
-        //m_beatTrack.level = m_level;
-        //m_beatTrack.beats = new List<Beat>();
-        
-        //Object file = Resources.Load(path);
+
+        m_game = Game.Instance;
     }
 
     private void Update()
@@ -63,7 +60,7 @@ public class BeatCreator : MonoBehaviour
 
     void CreateBeat()
     {
-        Beat beat = ScriptableObject.CreateInstance<Beat>();
+        Beat beat = new Beat();
         beat.startTime = m_music.time;
         beat.timeWindow = 0.5f;
         beat.shakeAmplitude = 6.0f;
@@ -80,39 +77,24 @@ public class BeatCreator : MonoBehaviour
     {
         string[] paths = GetBeatPaths();
 
-        CreateNeededFolders();
-
         for (int i = 0; i < m_beats.Count; ++i)
         {
-            Beat beat = AssetDatabase.LoadAssetAtPath<Beat>(paths[i]);
-            if (beat != m_beats[i])
-            {
-                AssetDatabase.CreateAsset(m_beats[i], paths[i]);
-                m_beatTrack.beats.Add(m_beats[i]);
-            }
+            //Beat beat = Game.Instance.LoadObjectFromJson<Beat>("beat" + i, m_level + "/Beats");
+            m_game.SaveObjectToJson("Beat" + i, m_level + "/Beats", m_beats[i]);
+            m_beatTrack.beats.Add(m_beats[i]);
+            //if (beat != m_beats[i])
+            //{
+            //    AssetDatabase.CreateAsset(m_beats[i], paths[i]);
+            //    m_beatTrack.beats.Add(m_beats[i]);
+            //}
         }
-
-        //FileUtil.DeleteFileOrDirectory(m_trackPath);
-        //AssetDatabase.DeleteAsset(m_trackPath);
-        //AssetDatabase.Refresh();
-        //AssetDatabase.SaveAssets();
-        if (AssetDatabase.LoadAssetAtPath<BeatTrack>(m_trackPath) != m_beatTrack)
-            AssetDatabase.CreateAsset(m_beatTrack, m_trackPath);
-
-        AssetDatabase.Refresh();
-        AssetDatabase.SaveAssets();
-    }
-
-    void CreateNeededFolders()
-    {
-        if (!AssetDatabase.IsValidFolder("Assets\\Resources"))
-            AssetDatabase.CreateFolder("Assets", "Resources");
-        if (!AssetDatabase.IsValidFolder("Assets\\Resources\\CustomLevels"))
-            AssetDatabase.CreateFolder("Assets\\Resources", "CustomLevels");
-        if (!AssetDatabase.IsValidFolder("Assets\\Resources\\CustomLevels\\" + m_level))
-            AssetDatabase.CreateFolder("Assets\\Resources\\CustomLevels", m_level);
-        if (!AssetDatabase.IsValidFolder("Assets\\Resources\\CustomLevels\\" + m_level + "\\Beats"))
-            AssetDatabase.CreateFolder("Assets\\Resources\\CustomLevels\\" + m_level, "Beats");
+        
+        //if (AssetDatabase.LoadAssetAtPath<BeatTrack>(m_trackPath) != m_beatTrack)
+        //    AssetDatabase.CreateAsset(m_beatTrack, m_trackPath);
+        m_game.SaveObjectToJson("Track", m_level, m_beatTrack);
+        if (!File.Exists(Application.dataPath + "/StreamingAssets/CustomLevels/" + m_level + "/Track.json"))
+        {
+        }
     }
 
     string[] GetBeatPaths()
@@ -175,7 +157,7 @@ public class BeatCreator : MonoBehaviour
 
     public void CreateNewTrack(TMP_InputField level)
     {
-        m_beatTrack = ScriptableObject.CreateInstance<BeatTrack>();
+        m_beatTrack = new BeatTrack();
         m_level = level.text;
         m_beatTrack.level = m_level;
         m_beatTrack.beats = new List<Beat>();

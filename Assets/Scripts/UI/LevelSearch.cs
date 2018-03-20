@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine;
+using System.IO;
 using TMPro;
-using UnityEditor;
 
 public class LevelSearch : Singleton<WorldSelector>
 {
@@ -22,6 +22,7 @@ public class LevelSearch : Singleton<WorldSelector>
     [SerializeField] Toggle m_toggleDefault = null;
     [SerializeField] Toggle m_toggleBoth = null;
 
+    Game m_game;
     List<GameObject> m_iconList;
     string m_generalPathSuffix = "\\Track.asset";
     SearchType m_searchType;
@@ -29,6 +30,7 @@ public class LevelSearch : Singleton<WorldSelector>
     private void Start()
     {
         m_iconList = new List<GameObject>();
+        m_game = Game.Instance;
 
         UpdateSearchType();
 
@@ -60,26 +62,28 @@ public class LevelSearch : Singleton<WorldSelector>
 
     void CreateCustomLevelIcons()
     {
-        string[] levels = AssetDatabase.GetSubFolders("Assets\\Resources\\CustomLevels");
-        string prefix = "Assets\\Resources\\CustomLevels\\";
+        string[] levels = Directory.GetDirectories(Application.dataPath + "/StreamingAssets/CustomLevels/");
+        //string[] levels = AssetDatabase.GetSubFolders("Assets\\Resources\\CustomLevels");
+        //string prefix = "Assets\\Resources\\CustomLevels\\";
+        string prefix = Application.dataPath + "/StreamingAssets/CustomLevels/";
         CreateIconsFromPaths(levels, prefix);
     }
 
     void CreateDefaultLevelIcons()
     {
-        string[] levels = AssetDatabase.GetSubFolders("Assets\\Resources\\PrebuiltLevels");
-        string prefix = "Assets\\Resources\\PrebuiltLevels\\";
+        string[] levels = Directory.GetDirectories(Application.dataPath + "/StreamingAssets/PrebuiltLevels/");
+        string prefix = Application.dataPath + "/StreamingAssets/PrebuiltLevels/";
         CreateIconsFromPaths(levels, prefix);
     }
 
     void CreateBothLevelIcons()
     {
-        string[] levels = AssetDatabase.GetSubFolders("Assets\\Resources\\CustomLevels");
-        string prefix = "Assets\\Resources\\CustomLevels\\";
+        string[] levels = Directory.GetDirectories(Application.dataPath + "/StreamingAssets/CustomLevels/");
+        string prefix = Application.dataPath + "/StreamingAssets/CustomLevels/";
         CreateIconsFromPaths(levels, prefix);
 
-        string[] levels2 = AssetDatabase.GetSubFolders("Assets\\Resources\\PrebuiltLevels");
-        string prefix2 = "Assets\\Resources\\PrebuiltLevels\\";
+        string[] levels2 = Directory.GetDirectories(Application.dataPath + "/StreamingAssets/PrebuiltLevels/");
+        string prefix2 = Application.dataPath + "/StreamingAssets/PrebuiltLevels/";
         CreateIconsFromPaths(levels2, prefix2);
     }
 
@@ -90,7 +94,9 @@ public class LevelSearch : Singleton<WorldSelector>
             string[] split = s.Split('/');
             string level = split[split.Length - 1];
             string fullPath = pathPrefix + level + m_generalPathSuffix;
-            BeatTrack track = AssetDatabase.LoadAssetAtPath<BeatTrack>(fullPath);
+            //BeatTrack track = AssetDatabase.LoadAssetAtPath<BeatTrack>(fullPath);
+            //print(level);
+            BeatTrack track = m_game.LoadObjectFromJson<BeatTrack>("Track", level);
             AddLevelIcon(track);
         }
     }

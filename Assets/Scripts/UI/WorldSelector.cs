@@ -1,9 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine.UI;
 using UnityEngine;
 using TMPro;
-using UnityEditor;
 
 public class WorldSelector : Singleton<WorldSelector>
 {
@@ -13,19 +13,22 @@ public class WorldSelector : Singleton<WorldSelector>
     [SerializeField] GameObject m_levelRowTemplate = null;
     [SerializeField] Transform m_levelsLocation = null;
 
+    Game m_game;
     GameObject m_currentRow = null;
     string m_generalPath = "Assets\\Resources\\CustomLevels\\";
     string m_generalPathSuffix = "\\Track.asset";
 
     private void Start()
     {
+        m_game = Game.Instance;
+
         m_currentRow = AddNewRow();
         CreateLevelIcons();
     }
 
     void CreateLevelIcons()
     {
-        string[] levels = AssetDatabase.GetSubFolders("Assets\\Resources\\CustomLevels");
+        string[] levels = Directory.GetDirectories(Application.dataPath + "/StreamingAssets/CustomLevels/");
 
         int rowCount = 0;
         foreach (string s in levels)
@@ -39,7 +42,8 @@ public class WorldSelector : Singleton<WorldSelector>
             string[] split = s.Split('/');
             string level = split[split.Length - 1];
             string fullPath = m_generalPath + level + m_generalPathSuffix;
-            BeatTrack track = AssetDatabase.LoadAssetAtPath<BeatTrack>(fullPath);
+            //BeatTrack track = AssetDatabase.LoadAssetAtPath<BeatTrack>(fullPath);
+            BeatTrack track = m_game.LoadObjectFromJson<BeatTrack>("Track", level);
             AddLevelIcon(track);
 
             rowCount++;
