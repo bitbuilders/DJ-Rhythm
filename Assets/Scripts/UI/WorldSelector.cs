@@ -15,15 +15,19 @@ public class WorldSelector : Singleton<WorldSelector>
 
     Game m_game;
     GameObject m_currentRow = null;
-    string m_generalPath = "Assets\\Resources\\CustomLevels\\";
-    string m_generalPathSuffix = "\\Track.asset";
 
     private void Start()
     {
         m_game = Game.Instance;
 
-        m_currentRow = AddNewRow();
-        CreateLevelIcons();
+        UpdateList();
+    }
+
+    private void OnEnable()
+    {
+        m_game = Game.Instance;
+
+        UpdateList();
     }
 
     void CreateLevelIcons()
@@ -41,12 +45,41 @@ public class WorldSelector : Singleton<WorldSelector>
 
             string[] split = s.Split('/');
             string level = split[split.Length - 1];
-            string fullPath = m_generalPath + level + m_generalPathSuffix;
-            //BeatTrack track = AssetDatabase.LoadAssetAtPath<BeatTrack>(fullPath);
             BeatTrack track = m_game.LoadObjectFromJson<BeatTrack>("Track", level);
             AddLevelIcon(track);
 
             rowCount++;
+        }
+    }
+
+    void UpdateList()
+    {
+        ClearList();
+        m_currentRow = AddNewRow();
+        CreateLevelIcons();
+        UpdateSelectorSize();
+    }
+
+    void ClearList()
+    {
+        Transform[] levels = m_levelsLocation.GetComponentsInChildren<Transform>();
+
+        for (int i = levels.Length - 1; i >= 0; i--)
+        {
+            if (levels[i] != m_levelsLocation)
+            {
+                Destroy(levels[i].gameObject);
+            }
+        }
+
+        m_levelsLocation.DetachChildren();
+    }
+
+    void UpdateSelectorSize()
+    {
+        for (int i = 0; i < m_levelsLocation.childCount - 2; i++)
+        {
+            m_levelsLocation.GetComponent<RectTransform>().sizeDelta += Vector2.up * 100.0f;
         }
     }
 

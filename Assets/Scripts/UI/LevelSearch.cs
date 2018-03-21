@@ -20,11 +20,10 @@ public class LevelSearch : Singleton<WorldSelector>
     [SerializeField] Transform m_levelsLocation = null;
     [SerializeField] Toggle m_toggleCustom = null;
     [SerializeField] Toggle m_toggleDefault = null;
-    [SerializeField] Toggle m_toggleBoth = null;
+    //[SerializeField] Toggle m_toggleBoth = null;
 
     Game m_game;
     List<GameObject> m_iconList;
-    string m_generalPathSuffix = "\\Track.asset";
     SearchType m_searchType;
 
     private void Start()
@@ -35,11 +34,6 @@ public class LevelSearch : Singleton<WorldSelector>
         UpdateSearchType();
 
         CreateLevelIcons();
-
-        RectTransform trans = m_levelsLocation.GetComponent<RectTransform>();
-        Vector2 pos = trans.position;
-        pos.y = 0.0f;
-        trans.position = pos;
     }
 
     void CreateLevelIcons()
@@ -63,8 +57,6 @@ public class LevelSearch : Singleton<WorldSelector>
     void CreateCustomLevelIcons()
     {
         string[] levels = Directory.GetDirectories(Application.dataPath + "/StreamingAssets/CustomLevels/");
-        //string[] levels = AssetDatabase.GetSubFolders("Assets\\Resources\\CustomLevels");
-        //string prefix = "Assets\\Resources\\CustomLevels\\";
         string prefix = Application.dataPath + "/StreamingAssets/CustomLevels/";
         CreateIconsFromPaths(levels, prefix);
     }
@@ -93,9 +85,6 @@ public class LevelSearch : Singleton<WorldSelector>
         {
             string[] split = s.Split('/');
             string level = split[split.Length - 1];
-            string fullPath = pathPrefix + level + m_generalPathSuffix;
-            //BeatTrack track = AssetDatabase.LoadAssetAtPath<BeatTrack>(fullPath);
-            //print(level);
             BeatTrack track = m_game.LoadObjectFromJson<BeatTrack>("Track", level);
             AddLevelIcon(track);
         }
@@ -106,6 +95,7 @@ public class LevelSearch : Singleton<WorldSelector>
         GameObject gameObject = Instantiate(m_levelIconTemplate, Vector3.zero, Quaternion.identity, m_levelsLocation);
         LevelIcon icon = gameObject.GetComponent<LevelIcon>();
         icon.m_track = track;
+        icon.m_canBeClicked = false;
         gameObject.GetComponentInChildren<TextMeshProUGUI>().text = track.level;
 
         if (m_levelsLocation.childCount > 3) m_levelsLocation.GetComponent<RectTransform>().sizeDelta += Vector2.right * 200.0f;
@@ -126,20 +116,17 @@ public class LevelSearch : Singleton<WorldSelector>
         m_levelsLocation.DetachChildren();
     }
 
-    public void StartTrack(BeatTrack track)
-    {
-        //m_player.LoadTrack(track);
-        gameObject.SetActive(false);
-        m_playerHUD.SetActive(true);
-    }
-
     private void UpdateSearchType()
     {
         if (m_toggleCustom.isOn) m_searchType = SearchType.CUSTOM;
         else if (m_toggleDefault.isOn) m_searchType = SearchType.DEFAULT;
         else m_searchType = SearchType.BOTH;
         //print(m_searchType);
-        m_levelsLocation.GetComponent<RectTransform>().sizeDelta = Vector2.up * 133.0f;
+        RectTransform trans = m_levelsLocation.GetComponent<RectTransform>();
+        trans.sizeDelta = Vector2.up * 133.0f;
+        Vector2 pos = trans.position;
+        pos.y = 0.0f;
+        trans.position = pos;
 
         ClearCurrentList();
     }
@@ -181,6 +168,7 @@ public class LevelSearch : Singleton<WorldSelector>
 
     public void LaunchPlaylist()
     {
+        m_playerHUD.SetActive(true);
         m_beatPlayer.LoadPlaylist(m_iconList);
     }
 }

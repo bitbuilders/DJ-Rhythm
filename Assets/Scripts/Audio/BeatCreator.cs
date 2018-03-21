@@ -16,13 +16,7 @@ public class BeatCreator : MonoBehaviour
     [SerializeField] string m_level = null;
 
     Game m_game;
-    string m_trackPath;
     bool m_paused = false;
-
-    private void Awake()
-    {
-        m_trackPath = "Assets\\Resources\\CustomLevels\\" + m_level + "\\Track.asset";
-    }
 
     private void Start()
     {
@@ -75,38 +69,12 @@ public class BeatCreator : MonoBehaviour
 
     void SaveBeats()
     {
-        string[] paths = GetBeatPaths();
-
         for (int i = 0; i < m_beats.Count; ++i)
         {
-            //Beat beat = Game.Instance.LoadObjectFromJson<Beat>("beat" + i, m_level + "/Beats");
             m_game.SaveObjectToJson("Beat" + i, m_level + "/Beats", m_beats[i]);
             m_beatTrack.beats.Add(m_beats[i]);
-            //if (beat != m_beats[i])
-            //{
-            //    AssetDatabase.CreateAsset(m_beats[i], paths[i]);
-            //    m_beatTrack.beats.Add(m_beats[i]);
-            //}
         }
-        
-        //if (AssetDatabase.LoadAssetAtPath<BeatTrack>(m_trackPath) != m_beatTrack)
-        //    AssetDatabase.CreateAsset(m_beatTrack, m_trackPath);
         m_game.SaveObjectToJson("Track", m_level, m_beatTrack);
-        if (!File.Exists(Application.dataPath + "/StreamingAssets/CustomLevels/" + m_level + "/Track.json"))
-        {
-        }
-    }
-
-    string[] GetBeatPaths()
-    {
-        string[] paths = new string[m_beats.Count];
-
-        for (int i = 0; i < paths.Length; ++i)
-        {
-            paths[i] = "Assets\\Resources\\CustomLevels\\" + m_level + "\\Beats\\Beat" + (i + 1) + ".asset";
-        }
-
-        return paths;
     }
 
     IEnumerator FadeFlare()
@@ -208,7 +176,6 @@ public class BeatCreator : MonoBehaviour
     public void SaveTrack()
     {
         m_beatTrack.level = m_level;
-        m_trackPath = "Assets\\Resources\\CustomLevels\\" + m_level + "\\Track.asset";
         SaveBeats();
     }
 }

@@ -1114,7 +1114,9 @@ MonoBehaviour:
   m_music: {fileID: 2089725758}
   m_screenFlare: {fileID: 1545788869}
   m_songProgress: {fileID: 1201019587}
-  m_beatTrack: {fileID: 11400000, guid: c0c88d81a159fb24c968f18bd6711482, type: 2}
+  m_beatTrack:
+    level: 
+    beats: []
   m_beats: []
   m_level: Bob
 --- !u!4 &184454030
@@ -3771,8 +3773,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.000030507052}
-  m_SizeDelta: {x: 0, y: 700}
+  m_AnchoredPosition: {x: 0, y: -0.000000010526492}
+  m_SizeDelta: {x: 0, y: 283}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &632685456
 MonoBehaviour:
@@ -10286,8 +10288,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1915837194}
   m_HandleRect: {fileID: 1915837193}
   m_Direction: 2
-  m_Value: 1
-  m_Size: 0.40428576
+  m_Value: 0
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -10485,9 +10487,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_music: {fileID: 2089725758}
   m_camera: {fileID: 1411504909}
+  m_endScreen: {fileID: 0}
   m_player: {fileID: 2081425040}
   m_screenFlare: {fileID: 1545788869}
-  m_beatTrack: {fileID: 0}
+  m_playList: []
 --- !u!1 &1889160447
 GameObject:
   m_ObjectHideFlags: 0

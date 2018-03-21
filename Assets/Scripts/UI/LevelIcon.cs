@@ -5,9 +5,13 @@ using UnityEngine;
 public class LevelIcon : MonoBehaviour
 {
     [SerializeField] public BeatTrack m_track = null;
+    [SerializeField] public bool m_canBeClicked = true;
 
     public void LoadLevel()
     {
-        WorldSelector.Instance.StartTrack(m_track);
+        if (m_canBeClicked)
+        {
+            WorldSelector.Instance.StartTrack(m_track);
+        }
     }
 }

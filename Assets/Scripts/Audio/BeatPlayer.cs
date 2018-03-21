@@ -21,6 +21,7 @@ public class BeatPlayer : MonoBehaviour
     [SerializeField] GameObject m_endScreen = null;
     [SerializeField] Player m_player = null;
     [SerializeField] Image m_screenFlare = null;
+    [SerializeField] Image m_screenTransition = null;
     [SerializeField] List<BeatTrack> m_playList = null;
 
     int m_songIndex = 0;
@@ -119,7 +120,6 @@ public class BeatPlayer : MonoBehaviour
     void FinishLevel()
     {
         m_songIndex++;
-        print(m_songIndex);
         if (!OutOfSongs())
         {
             PlayNextSong();
@@ -146,8 +146,47 @@ public class BeatPlayer : MonoBehaviour
         m_music.time = 0.0f;
         m_beatIndex = 0;
         m_playList[m_songIndex].beats = m_playList[m_songIndex].beats.OrderBy(b => b.startTime).ToList();
-
+        PauseMusic();
+        StartCoroutine(SongTransition());
     }
+
+    IEnumerator SongTransition()
+    {
+        m_screenTransition.gameObject.SetActive(true);
+        Color color = m_screenTransition.color;
+
+        for (float i = 0.0f; i <= 1.0f; i += Time.deltaTime * 2.0f)
+        {
+            Color c = color;
+            c.a = i;
+            color = c;
+            m_screenTransition.color = color;
+            
+            yield return null;
+        }
+
+        // Switch scene here
+
+        yield return new WaitForSeconds(0.25f);
+
+        for (float i = 1.0f; i >= 0.0f; i -= Time.deltaTime * 2.0f)
+        {
+            Color c = color;
+            c.a = i;
+            color = c;
+            m_screenTransition.color = color;
+
+            yield return null;
+        }
+
+        Color finalColor = color;
+        finalColor.a = 0.0f;
+        color = finalColor;
+        m_screenTransition.gameObject.SetActive(false);
+
+        PlayMusic();
+    }
+
 
     bool OutOfSongs()
     {
@@ -164,5 +203,11 @@ public class BeatPlayer : MonoBehaviour
     {
         m_music.Pause();
         m_paused = true;
+    }
+
+    public void Restart()
+    {
+        m_songIndex = 0;
+        PlayNextSong();
     }
 }

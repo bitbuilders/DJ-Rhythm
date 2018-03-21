@@ -6,27 +6,30 @@ using UnityEngine.SceneManagement;
 
 public class Game : Singleton<Game>
 {
+    [SerializeField] GameObject m_pauseMenu = null;
+
+    AudioSource m_music;
+
     private void Start()
     {
         CreateNeededFolders();
 
-        //BeatTrack track = new BeatTrack();
-        //track.beats = new List<Beat>();
-
-        //Beat beat = new Beat();
-        //beat.startTime = 1.0f;
-        //Beat beat2 = new Beat();
-        //beat2.startTime = 2.0f;
-
-        //track.beats.Add(beat);
-        //track.beats.Add(beat2);
-
-        //SaveObjectToJson<BeatTrack>("trackTest", "Bob", track);
+        m_music = GetComponent<AudioSource>();
     }
 
     private void Update()
     {
-
+        if (Input.GetButtonDown("Pause"))
+        {
+            if (!m_pauseMenu.activeInHierarchy)
+            {
+                PauseGame();
+            }
+            else
+            {
+                ResumeGame();
+            }
+        }
     }
 
     public void LoadScene(string scene)
@@ -62,6 +65,20 @@ public class Game : Singleton<Game>
     {
         Directory.CreateDirectory(Application.dataPath + "/StreamingAssets/CustomLevels");
         Directory.CreateDirectory(Application.dataPath + "/StreamingAssets/PrebuiltLevels");
+    }
+
+    public void PauseGame()
+    {
+        Time.timeScale = 0.0f;
+        m_pauseMenu.SetActive(true);
+        m_music.Pause();
+    }
+
+    public void ResumeGame()
+    {
+        Time.timeScale = 1.0f;
+        m_pauseMenu.SetActive(false);
+        m_music.Play();
     }
 
     public void QuitGame()
