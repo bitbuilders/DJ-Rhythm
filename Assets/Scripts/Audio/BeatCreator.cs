@@ -6,14 +6,19 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 
-public class BeatCreator : MonoBehaviour
+public class BeatCreator : Singleton<BeatCreator>
 {
     [SerializeField] AudioSource m_music = null;
     [SerializeField] Image m_screenFlare = null;
     [SerializeField] Slider m_songProgress = null;
+    [SerializeField] GameObject m_beatStampTemplate = null;
+    [SerializeField] Transform m_beatStampLocation = null;
     [SerializeField] BeatTrack m_beatTrack = null;
     [SerializeField] List<Beat> m_beats = null;
     [SerializeField] string m_level = null;
+    [SerializeField] bool m_eraseMode = false;
+    
+    public bool InEraseMode { get { return m_eraseMode; } }
 
     Game m_game;
     bool m_paused = false;
@@ -65,6 +70,29 @@ public class BeatCreator : MonoBehaviour
         m_screenFlare.gameObject.SetActive(true);
         StopCoroutine(FadeFlare());
         StartCoroutine(FadeFlare());
+
+        CreateBeatstamp(beat);
+    }
+
+    public void DeleteBeat(Beat beat)
+    {
+        m_beats.Remove(beat);
+    }
+
+    GameObject CreateBeatstamp(Beat beat)
+    {
+        GameObject stamp = Instantiate(m_beatStampTemplate, Vector3.zero, Quaternion.identity, m_beatStampLocation);
+        BeatStamp beatStamp = stamp.GetComponent<BeatStamp>();
+        beatStamp.m_beat = beat;
+
+        float time = beatStamp.m_beat.startTime / m_music.clip.length;
+        float position = time * Screen.width;
+        RectTransform trans = stamp.GetComponent<RectTransform>();
+        Vector3 pos = trans.position;
+        pos.x = position;
+        trans.position = pos;
+
+        return stamp;
     }
 
     void SaveBeats()
@@ -118,6 +146,7 @@ public class BeatCreator : MonoBehaviour
         foreach (Beat beat in m_beatTrack.beats)
         {
             m_beats.Add(beat);
+            CreateBeatstamp(beat);
         }
 
         PlayMusic();

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-public class SongProgress : MonoBehaviour
+public class SongProgress : Singleton<SongProgress>
 {
     [SerializeField] AudioSource m_music = null;
     [SerializeField] GameObject m_timestamp = null;
@@ -55,6 +55,16 @@ public class SongProgress : MonoBehaviour
                 if (timestamps[i].gameObject != m_timestampContainer)
                     Destroy(timestamps[i].gameObject);
             }
+        }
+    }
+
+    public void PlaceBeatStamps()
+    {
+        BeatStamp[] stamps = GetComponentsInChildren<BeatStamp>();
+
+        foreach (BeatStamp stamp in stamps)
+        {
+            stamp.Lift();
         }
     }
 }
