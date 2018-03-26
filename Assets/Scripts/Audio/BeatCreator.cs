@@ -134,7 +134,7 @@ public class BeatCreator : Singleton<BeatCreator>
     }
     void StopMusic()
     {
-        m_music.Stop();
+        m_music.Pause();
         m_paused = true;
     }
 
@@ -206,5 +206,10 @@ public class BeatCreator : Singleton<BeatCreator>
     {
         m_beatTrack.level = m_level;
         SaveBeats();
+    }
+
+    public void ToggleEraseMode()
+    {
+        m_eraseMode = !m_eraseMode;
     }
 }

@@ -676,11 +676,14 @@ MonoBehaviour:
   m_music: {fileID: 0}
   m_screenFlare: {fileID: 0}
   m_songProgress: {fileID: 0}
+  m_beatStampTemplate: {fileID: 0}
+  m_beatStampLocation: {fileID: 0}
   m_beatTrack:
     level: 
     beats: []
   m_beats: []
   m_level: 
+  m_eraseMode: 0
 --- !u!4 &184454030
 Transform:
   m_ObjectHideFlags: 0
@@ -7866,7 +7869,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 243354925931600336, guid: e432c7165cd54de4daa78d323da2e478,
     type: 2}
-  m_audioClip: {fileID: 8300000, guid: 151e0cec561d7ba47be33aa0a354099c, type: 3}
+  m_audioClip: {fileID: 8300000, guid: 656ca974b97d3e848a8d8d8c213b16b1, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
