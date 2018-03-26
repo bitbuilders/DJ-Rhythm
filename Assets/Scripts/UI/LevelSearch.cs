@@ -123,18 +123,20 @@ public class LevelSearch : Singleton<WorldSelector>
         else m_searchType = SearchType.BOTH;
         //print(m_searchType);
         RectTransform trans = m_levelsLocation.GetComponent<RectTransform>();
-        trans.sizeDelta = Vector2.up * 133.0f;
-        Vector2 pos = trans.position;
-        pos.y = 0.0f;
-        trans.position = pos;
+        trans.localPosition = Vector3.zero;
+
+        m_levelsLocation.GetComponent<RectTransform>().sizeDelta = Vector3.up * 133.0f;
 
         ClearCurrentList();
     }
 
-    public void OnToggleChange()
+    public void OnToggleChange(Toggle toggle)
     {
-        UpdateSearchType();
-        CreateLevelIcons();
+        if (toggle.isOn)
+        {
+            UpdateSearchType();
+            CreateLevelIcons();
+        }
     }
 
     public void Randomize()
